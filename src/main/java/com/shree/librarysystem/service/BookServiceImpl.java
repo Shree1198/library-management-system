@@ -2,6 +2,7 @@ package com.shree.librarysystem.service;
 
 import com.shree.librarysystem.dto.BookDto;
 import com.shree.librarysystem.entity.Book;
+import com.shree.librarysystem.exception.ResourceNotFoundException;
 import com.shree.librarysystem.repository.BookRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +35,10 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookDto getBookById(Long id) {
-        Optional<Book> optionalBook = bookRepository.findById(id);
-        return optionalBook.map(this::convertToDto).orElse(null);
+    public BookDto getBookById(Long id) throws ResourceNotFoundException {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id " + id));
+        return convertToDto(book);
     }
 
     @Override
@@ -47,21 +49,21 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookDto updateBook(Long id, BookDto bookDto) {
-        Optional<Book> optionalBook = bookRepository.findById(id);
-        if (optionalBook.isPresent()) {
-            Book book = optionalBook.get();
-            book.setTitle(bookDto.getTitle());
-            book.setAuthor(bookDto.getAuthor());
-            book.setIsbn(bookDto.getIsbn());
-            Book updatedBook = bookRepository.save(book);
-            return convertToDto(updatedBook);
-        }
-        return null;
+    public BookDto updateBook(Long id, BookDto bookDto) throws ResourceNotFoundException {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id " + id));
+        book.setTitle(bookDto.getTitle());
+        book.setAuthor(bookDto.getAuthor());
+        book.setIsbn(bookDto.getIsbn());
+        Book updatedBook = bookRepository.save(book);
+        return convertToDto(updatedBook);
     }
 
     @Override
-    public void deleteBook(Long id) {
+    public void deleteBook(Long id) throws ResourceNotFoundException {
+        if (!bookRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Book not found with id " + id);
+        }
         bookRepository.deleteById(id);
     }
 
