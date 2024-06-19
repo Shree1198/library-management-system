@@ -54,7 +54,6 @@ public class BookServiceImpl implements BookService {
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with id " + id));
         book.setTitle(bookDto.getTitle());
         book.setAuthor(bookDto.getAuthor());
-        book.setIsbn(bookDto.getIsbn());
         Book updatedBook = bookRepository.save(book);
         return convertToDto(updatedBook);
     }

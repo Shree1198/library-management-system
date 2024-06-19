@@ -19,7 +19,11 @@ public class Book {
 
     private String author;
 
-    private String isbn;
+    private boolean borrowed;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User borrowedBy;
 
     private int copiesAvailable;
 }
